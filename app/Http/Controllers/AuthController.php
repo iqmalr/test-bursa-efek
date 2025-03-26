@@ -13,6 +13,15 @@ use OpenApi\Annotations as OA;
 /**
  * @OA\Tag(name="Auth", description="Authentication Endpoints")
  */
+/**
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="Masukkan token di kolom ini untuk mengakses endpoint yang memerlukan autentikasi"
+ * )
+ */
 class AuthController extends Controller
 {
     /**
@@ -33,15 +42,6 @@ class AuthController extends Controller
      *     security={{"BearerAuth": {}}}
      * )
      */
-    /**
-     * @OA\SecurityScheme(
-     *     securityScheme="bearerAuth",
-     *     type="http",
-     *     scheme="bearer",
-     *     bearerFormat="JWT",
-     *     description="Masukkan token di kolom ini untuk mengakses endpoint yang memerlukan autentikasi"
-     * )
-     */
 
     public function login(Request $request)
     {
@@ -52,24 +52,51 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        $token = Auth::guard('api')->attempt($credentials);
+        // Use info() for logging
+        info('Login attempt', [
+            'email' => $credentials['email'],
+            'password_provided' => !empty($credentials['password'])
+        ]);
 
-        if (!$token) {
+        try {
+            $token = Auth::guard('api')->attempt($credentials);
+
+            if (!$token) {
+                // Additional debugging
+                $user = User::where('email', $credentials['email'])->first();
+                info('Login failed details', [
+                    'user_exists' => $user ? 'Yes' : 'No',
+                    'password_check' => $user ? Hash::check($credentials['password'], $user->password) : 'No user found'
+                ]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized',
+                    'errors' => ['Invalid credentials']
+                ], 401);
+            }
+
+            $user = Auth::guard('api')->user();
+            return response()->json([
+                'status' => 'success',
+                'user' => $user,
+                'authorisation' => [
+                    'token' => $token,
+                    'type' => 'bearer',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            info('Login exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Unauthorized',
-            ], 401);
+                'message' => 'Login failed',
+                'errors' => [$e->getMessage()]
+            ], 500);
         }
-
-        $user = Auth::guard('api')->user();
-        return response()->json([
-            'status' => 'success',
-            'user' => $user,
-            'authorisation' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
-        ]);
     }
     /**
      * @OA\Post(
@@ -136,9 +163,27 @@ class AuthController extends Controller
      *     path="/api/refresh",
      *     summary="Refresh JWT token",
      *     tags={"Auth"},
-     *     @OA\Response(response=200, description="Token refreshed successfully"),
-     *     @OA\Response(response=401, description="Token refresh failed"),
-     *     security={{"BearerAuth": {}}}
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Token refreshed successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="user", type="object"),
+     *             @OA\Property(property="authorisation", type="object",
+     *                 @OA\Property(property="token", type="string", example="new_jwt_token"),
+     *                 @OA\Property(property="type", type="string", example="bearer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Token refresh failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Failed to refresh token")
+     *         )
+     *     )
      * )
      */
     public function refresh()
