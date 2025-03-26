@@ -5,12 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\CategoryProduct;
 use Illuminate\Http\Request;
 
-// /**
-//  * @OA\Tag(
-//  *      name="Category Products",
-//  *      description="Endpoints untuk mengelola kategori produk"
-//  * )
-//  */
 class CategoryProductController extends Controller
 {
     /**
@@ -36,7 +30,21 @@ class CategoryProductController extends Controller
      */
     public function index()
     {
-        return response()->json(CategoryProduct::all());
+        $categories = CategoryProduct::all();
+
+        if ($categories->isEmpty()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'No categories found',
+                'data' => []
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Categories retrieved successfully',
+            'data' => $categories
+        ], 200);
     }
     /**
      * @OA\Post(
@@ -59,6 +67,22 @@ class CategoryProductController extends Controller
     {
         $request->validate(['name' => 'required|string|max:255']);
         $category = CategoryProduct::create($request->only('name'));
-        return response()->json($category, 201);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category created successfully',
+            'data' => $category
+        ], 201);
+    }
+    public function show($id)
+    {
+        $category = CategoryProduct::find($id);
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category retrieved successfully',
+            'data' => $category
+        ], 200);
     }
 }
