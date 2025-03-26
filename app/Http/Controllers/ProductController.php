@@ -27,6 +27,23 @@ class ProductController extends Controller
             'data' => $product
         ], 200);
     }
+    public function show($uuid)
+    {
+        $product = Product::where('uuid', $uuid)->first();
+
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product retrieved successfully',
+            'data' => $product
+        ], 200);
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -56,5 +73,35 @@ class ProductController extends Controller
             'message' => 'Product created successfully',
             'data' => $product
         ], 201);
+    }
+    public function update(Request $request, $uuid)
+    {
+        $product = Product::where('uuid', $uuid)->first();
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product not found'
+            ], 404);
+        }
+        $request->validate([
+            'product_category_id' => 'sometimes|exists:category_products,id',
+            'name' => 'sometimes|string|max:255',
+            'price' => 'sometimes|numeric|min:0',
+            'image' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+        if ($request->hasFile('image')) {
+            if ($product->image && file_exists(public_path("storage/{$product->image}"))) {
+                unlink(public_path("storage/{$product->image}"));
+            }
+            $path = $request->file('image')->store('products', 'public');
+            $product->image = $path;
+        }
+        $product->update($request->only(['product_category_id', 'name', 'price']));
+        $product->save();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product updated successfully',
+            'data' => $product
+        ], 200);
     }
 }

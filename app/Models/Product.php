@@ -10,9 +10,10 @@ use Illuminate\Support\Str;
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
-
     protected $fillable = ['uuid', 'product_category_id', 'name', 'price', 'image'];
-
+    protected $primaryKey = 'uuid';
+    protected $keyType = 'string';
+    public $incrementing = false;
     protected static function boot()
     {
         parent::boot();

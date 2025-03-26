@@ -22,6 +22,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('products', [ProductController::class, 'index']);
     Route::post('products', [ProductController::class, 'store']);
+    Route::get('products/{uuid}', [ProductController::class, 'show']);
+    Route::put('products/{uuid}', [ProductController::class, 'update']);
 
     Route::get('/user', function (Request $request) {
         return response()->json($request->user());
