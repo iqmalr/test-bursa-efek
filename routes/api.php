@@ -24,6 +24,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('products', [ProductController::class, 'store']);
     Route::get('products/{uuid}', [ProductController::class, 'show']);
     Route::put('products/{uuid}', [ProductController::class, 'update']);
+    Route::delete('products/{uuid}', [ProductController::class, 'destroy']);
+    Route::patch('products/{uuid}/restore', [ProductController::class, 'restore']);
 
     Route::get('/user', function (Request $request) {
         return response()->json($request->user());

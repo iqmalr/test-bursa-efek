@@ -104,4 +104,42 @@ class ProductController extends Controller
             'data' => $product
         ], 200);
     }
+    public function destroy($uuid)
+    {
+        $product = Product::where('uuid', $uuid)->whereNull('deleted_at')->first();
+
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product soft deleted successfully',
+            'deleted_at' => $product->deleted_at
+        ]);
+    }
+    public function restore($uuid)
+    {
+        $product = Product::onlyTrashed()->where('uuid', $uuid)->first();
+
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product not found or not deleted'
+            ], 404);
+        }
+
+        $product->restore();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product restored successfully',
+            'data' => $product
+        ], 200);
+    }
 }

@@ -13,6 +13,7 @@ class Product extends Model
     protected $fillable = ['uuid', 'product_category_id', 'name', 'price', 'image'];
     protected $primaryKey = 'uuid';
     protected $keyType = 'string';
+    protected $dates = ['deleted_at'];
     public $incrementing = false;
     protected static function boot()
     {
