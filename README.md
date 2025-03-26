@@ -65,8 +65,12 @@ php artisan serve
 
 ### Swagger Documentation
 
-Access Swagger UI at:
-http://127.0.0.1:8000/api/documentation#/
+Since I can't log in to Swagger, I am unable to publish the Swagger documentation on Swagger UI. However, you can view it at the following link or run the project and access it at:
+
+[http://127.0.0.1:8000/api/documentation#/](http://127.0.0.1:8000/api/documentation#/)
+
+You can also check my Swagger file on GitHub:
+[https://github.com/iqmalr/test-bursa-efek/blob/master/storage/api-docs/api-docs.json](https://github.com/iqmalr/test-bursa-efek/blob/master/storage/api-docs/api-docs.json)
 
 ### Postman Collection
 
