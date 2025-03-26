@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryProductController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,8 @@ Route::middleware('auth:api')->group(function () {
     Route::put('category-products/{id}', [CategoryProductController::class, 'update']);
     Route::delete('category-products/{id}', [CategoryProductController::class, 'destroy']);
     Route::patch('category-products/{id}/restore', [CategoryProductController::class, 'restore']);
+
+    Route::get('products', [ProductController::class, 'index']);
 
     Route::get('/user', function (Request $request) {
         return response()->json($request->user());
