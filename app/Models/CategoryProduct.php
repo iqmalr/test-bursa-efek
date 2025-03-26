@@ -12,6 +12,7 @@ class CategoryProduct extends Model
 
     protected $table = 'category_products';
     protected $fillable = ['name'];
+    protected $dates = ['deleted_at'];
 
     public function products()
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CategoryProduct;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CategoryProductController extends Controller
@@ -99,6 +100,43 @@ class CategoryProductController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Category updated successfully',
+            'data' => $category
+        ], 200);
+    }
+    public function destroy($id)
+    {
+        $category = CategoryProduct::where('id', $id)->whereNull('deleted_at')->first();
+
+        if (!$category) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Category not found'
+            ], 404);
+        }
+
+        $category->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category soft deleted successfully',
+            'deleted_at' => $category->deleted_at
+        ]);
+    }
+    public function restore($id)
+    {
+        $category = CategoryProduct::onlyTrashed()->find($id);
+        if (!$category) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Category not found or not deleted'
+            ], 404);
+        }
+
+        $category->restore();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category restored successfully',
             'data' => $category
         ], 200);
     }
