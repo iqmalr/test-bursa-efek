@@ -21,6 +21,7 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('category-products/{id}/restore', [CategoryProductController::class, 'restore']);
 
     Route::get('products', [ProductController::class, 'index']);
+    Route::post('products', [ProductController::class, 'store']);
 
     Route::get('/user', function (Request $request) {
         return response()->json($request->user());

@@ -5,13 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['product_category_id', 'name', 'price', 'image'];
+    protected $fillable = ['uuid', 'product_category_id', 'name', 'price', 'image'];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($product) {
+            $product->uuid = Str::uuid();
+        });
+    }
     public function category()
     {
         return $this->belongsTo(CategoryProduct::class, 'product_category_id');
