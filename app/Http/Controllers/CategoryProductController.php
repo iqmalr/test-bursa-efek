@@ -85,4 +85,21 @@ class CategoryProductController extends Controller
             'data' => $category
         ], 200);
     }
+    public function update(Request $request, $id)
+    {
+        $category = CategoryProduct::find($id);
+        if (!$category) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'category not found'
+            ], 400);
+        }
+        $request->validate(['name' => 'required|string|max:255']);
+        $category->update($request->only('name'));
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category updated successfully',
+            'data' => $category
+        ], 200);
+    }
 }
