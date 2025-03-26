@@ -11,7 +11,7 @@ use Illuminate\Routing\Controller as BaseController;
  * @OA\Info(
  *      title="TEST BURSA EFEK",
  *      version="1.0.0",
- *      description="Dokumentasi API",
+ *      description="Dokumentasi API - Iqmal Riffai",
  *      @OA\Contact(
  *          email="your-email@example.com"
  *      ),
